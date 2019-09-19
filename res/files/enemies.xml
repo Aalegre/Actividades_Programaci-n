@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<enemies>
+  <enemy name="Jesucristo" life="100" defense="100" xp="999">
+    <attack damage="10" frequency="10"/>
+    <weapons>
+      <weapon type="melee" range="10">pan</weapon>
+      <weapon type="distance" range="50">vino</weapon>
+      <weapon type="magic" range="100">pez</weapon>
+    </weapons>
+  </enemy>
+  <enemy name="Jesucristo Superstar" life="10" defense="10" xp="100">
+    <attack damage="999" frequency="50"/>
+    <weapons>
+      <weapon type="magic" range="500">afro</weapon>
+      <weapon type="melee" range="5">pantacas</weapon>
+    </weapons>
+  </enemy>
+  <enemy name="JoJoCristo" life="45" defense="98" xp="3">
+    <attack damage="25" frequency="62"/>
+    <weapons>
+      <weapon type="melee" range="50">hu</weapon>
+      <weapon type="melee" range="50">ha</weapon>
+    </weapons>
+  </enemy>
+  <enemy name="El Jesu" life="89" defense="45" xp="91">
+    <attack damage="12" frequency="52"/>
+    <weapons>
+      <weapon type="melee" range="10">navaja</weapon>
+      <weapon type="distance" range="500">pipa</weapon>
+    </weapons>
+  </enemy>
+</enemies>
