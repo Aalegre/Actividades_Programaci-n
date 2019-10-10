@@ -24,10 +24,10 @@ RigidBody2D::RigidBody2D(Vector2 center_, Vector2 size_, bool isStatic_)
 	calculateRenderPoint();
 }
 
-RigidBody2D::RigidBody2D(Vector2 center_, const std::vector<Vector2> & points_, bool isStatic_)
+RigidBody2D::RigidBody2D(Vector2 center_, const vector<Vector2> & points_, bool isStatic_)
 {
 	center = center_;
-	points = std::vector<Vector2>(points_);
+	points = vector<Vector2>(points_);
 	isStatic = isStatic_;
 
 	rotation = 0;
@@ -59,14 +59,55 @@ const Vector2 RigidBody2D::getSize()
 	return Vector2();
 }
 
-const std::pair<Vector2, Vector2> RigidBody2D::getBoundaries()
+const pair<Vector2, Vector2> RigidBody2D::getBoundaries()
 {
-	return std::pair<Vector2, Vector2>();
+	return pair<Vector2, Vector2>();
 }
 
-const std::vector<Vector2> RigidBody2D::getPoints()
+const vector<Vector2> RigidBody2D::getPoints()
 {
-	return std::vector<Vector2>();
+	vector<Vector2> newPoints;
+	switch (type)
+	{
+	case CIRCLE:
+		for (float angle = 0; angle <= 2 * PI + 0.1; angle += 0.1)
+		{
+			newPoints.push_back({ center.x + points[0].x * cos(angle), center.y + points[0].x * sin(angle) });
+		}
+		return newPoints;
+	case BOX:
+		if (rotation == 0) {
+			newPoints.push_back({ center.x + (points[0].x / 2), center.y - (points[0].y / 2) });
+			newPoints.push_back({ center.x + (points[0].x / 2), center.y + (points[0].y / 2) });
+			newPoints.push_back({ center.x - (points[0].x / 2), center.y + (points[0].y / 2) });
+			newPoints.push_back({ center.x - (points[0].x / 2), center.y - (points[0].y / 2) });
+		}
+		else {
+			Vector2 tempPoint;
+			tempPoint = { points[0].x / 2, -points[0].y / 2 };
+			tempPoint.RotateOnAxis(rotation);
+			newPoints.push_back({ center.x + tempPoint.x, center.y + tempPoint.y });
+			tempPoint = { points[0].x / 2, points[0].y / 2 };
+			tempPoint.RotateOnAxis(rotation);
+			newPoints.push_back({ center.x + tempPoint.x, center.y + tempPoint.y });
+			tempPoint = { -points[0].x / 2, points[0].y / 2 };
+			tempPoint.RotateOnAxis(rotation);
+			newPoints.push_back({ center.x + tempPoint.x, center.y + tempPoint.y });
+			tempPoint = { -points[0].x / 2, -points[0].y / 2 };
+			tempPoint.RotateOnAxis(rotation);
+			newPoints.push_back({ center.x + tempPoint.x, center.y + tempPoint.y });
+		}
+		return newPoints;
+	default:
+		for (vector<Vector2>::iterator it = points.begin(); it != points.end(); ++it)
+		{
+			Vector2 tempPoint(*it);
+			if(rotation != 0)
+				tempPoint.RotateOnAxis(rotation);
+			newPoints.push_back({ center.x + tempPoint.x, center.y + tempPoint.y });
+		}
+		return newPoints;
+	}
 }
 
 const Vector2 RigidBody2D::getCenter()
@@ -91,7 +132,7 @@ const Vector2 RigidBody2D::getDirection()
 
 const float RigidBody2D::getRotation()
 {
-	return 0.0f;
+	return rotation;
 }
 
 const BODY_TYPE RigidBody2D::getType()
@@ -101,6 +142,8 @@ const BODY_TYPE RigidBody2D::getType()
 
 const bool RigidBody2D::isColliding(RigidBody2D rb_)
 {
+	vector<Vector2> rb1 = this->getPoints();
+	vector<Vector2> rb2 = rb_.getPoints();
 	switch (type)
 	{
 	case CIRCLE:
@@ -122,6 +165,12 @@ const bool RigidBody2D::isColliding(RigidBody2D rb_)
 		case CIRCLE:
 			return false;
 		case BOX:
+			for (std::vector<Vector2>::iterator it = rb1.begin(); it != rb1.end(); ++it) {
+				if (rb_.isInBoundaries(*it)) return true;
+			}
+			for (std::vector<Vector2>::iterator it = rb2.begin(); it != rb2.end(); ++it) {
+				if (this->isInBoundaries(*it)) return true;
+			}
 			return false;
 		case POLYGON:
 			return false;
@@ -182,7 +231,7 @@ void RigidBody2D::calculateRenderPoint()
 	switch (type)
 	{
 	case CIRCLE:
-		renderPoint = { center.x - (points[0].x / 2), center.y - (points[0].x / 2) };
+		renderPoint = { center.x - (points[0].x), center.y - (points[0].x) };
 		break;
 	case BOX:
 		renderPoint = { center.x - (points[0].x / 2), center.y - (points[0].y / 2) };
@@ -192,6 +241,12 @@ void RigidBody2D::calculateRenderPoint()
 	default:
 		break;
 	}
+}
+
+void RigidBody2D::rotate(float eulerAngle_)
+{
+	rotation = eulerAngle_;
+	rotation = fmod(rotation, 360);
 }
 
 void RigidBody2D::move(Vector2 force_)

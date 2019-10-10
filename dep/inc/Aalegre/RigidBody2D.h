@@ -11,11 +11,11 @@ const enum BODY_TYPE { CIRCLE, BOX, POLYGON, COUNT };
 class RigidBody2D {
 
 private:
-	std::vector<Vector2> points;
+	vector<Vector2> points;
 	float rotation;
 	Vector2 force;
 	Vector2 renderPoint;
-	std::pair<Vector2, Vector2> boundaries;
+	pair<Vector2, Vector2> boundaries;
 	BODY_TYPE type;
 	Vector2 center;
 
@@ -24,12 +24,12 @@ public:
 
 	RigidBody2D(Vector2 center_, float radius_, bool isStatic_ = false);						//Circle
 	RigidBody2D(Vector2 center_, Vector2 size_, bool isStatic_ = false);						//Box
-	RigidBody2D(Vector2 center_, const std::vector<Vector2> & points_, bool isStatic_ = false);	//Polygon
+	RigidBody2D(Vector2 center_, const vector<Vector2> & points_, bool isStatic_ = false);	//Polygon
 
 	const float getRadius();
 	const Vector2 getSize();
-	const std::pair<Vector2, Vector2> getBoundaries();
-	const std::vector<Vector2> getPoints();
+	const pair<Vector2, Vector2> getBoundaries();
+	const vector<Vector2> getPoints();
 	const Vector2 getCenter();
 	const Vector2 getRenderPoint();
 	const Vector2 getCurrentForce();
@@ -42,6 +42,7 @@ public:
 
 	void calculateBoundaries();
 	void calculateRenderPoint();
+	void rotate(float eulerAngle_);
 	void move(Vector2 force_);
 	void teleport(Vector2 position_);
 };

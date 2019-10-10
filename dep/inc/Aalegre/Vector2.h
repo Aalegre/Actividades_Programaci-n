@@ -1,7 +1,10 @@
 #pragma once
 
+#include <iostream>
 #include <math.h>
 #define PI 3.14159265
+
+using namespace std;
 
 class Vector2
 {
@@ -37,6 +40,7 @@ class Vector2
 	void Project(const Vector2 vectorToProject_);
 	void Clamp(const float magnitude_);
 	void FromEulerAngle(const float eulerAngle_);
+	void RotateOnAxis(const float eulerAngle_);
 
 	//Operators
 	Vector2 operator+(const Vector2 vector_);
@@ -44,5 +48,12 @@ class Vector2
 	Vector2 operator*(const Vector2 vector_);
 	friend bool operator==(const Vector2 vector0_, const Vector2 vector1_);
 	friend bool operator!=(const Vector2 vector0_, const Vector2 vector1_);
+};
+class Vector2Int
+{
+	public:
+
+	int x;
+	int y;
 };
 

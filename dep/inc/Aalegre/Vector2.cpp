@@ -111,6 +111,14 @@ void Vector2::FromEulerAngle(const float eulerAngle_){
 	y = sin(eulerAngle_ * PI / 180.0);
 }
 
+void Vector2::RotateOnAxis(const float eulerAngle_)
+{
+	Vector2 tempV(x, y);
+	float deg = eulerAngle_ * PI / 180.0;
+	x = tempV.x * cos(deg) + tempV.y * sin(deg);
+	y = tempV.x * -sin(deg) + tempV.y * cos(deg);
+}
+
 //OPERATORS
 
 Vector2 Vector2::operator+(const Vector2 vector_)
