@@ -159,12 +159,12 @@ const bool RigidBody2D::isColliding(RigidBody2D rb_)
 			return false;
 		}
 		return false;
-	case BOX:
+	default:
 		switch (rb_.type)
 		{
 		case CIRCLE:
 			return false;
-		case BOX:
+		default:
 			for (std::vector<Vector2>::iterator it = rb1.begin(); it != rb1.end(); ++it) {
 				if (rb_.isInBoundaries(*it)) return true;
 			}
@@ -172,26 +172,7 @@ const bool RigidBody2D::isColliding(RigidBody2D rb_)
 				if (this->isInBoundaries(*it)) return true;
 			}
 			return false;
-		case POLYGON:
-			return false;
-		default:
-			break;
 		}
-		return false;
-	case POLYGON:
-		switch (rb_.type)
-		{
-		case CIRCLE:
-			return false;
-		case BOX:
-			return false;
-		case POLYGON:
-			return false;
-		default:
-			break;
-		}
-		return false;
-	default:
 		return false;
 	}
 	return false;
@@ -206,18 +187,35 @@ const bool RigidBody2D::isInBoundaries(Vector2 point_)
 	case BOX:
 		if (rotation == 0) {
 			if ((center.y + (points[0].y / 2) >= point_.y) &&
-				(center.y - (points[0].y / 2) <= point_.y) && 
-				(center.x + (points[0].x / 2) >= point_.x) && 
+				(center.y - (points[0].y / 2) <= point_.y) &&
+				(center.x + (points[0].x / 2) >= point_.x) &&
 				(center.x - (points[0].x / 2) <= point_.x)) return true;
+			else
+				return false;
 		}
-		else {
-
-		}
-		return false;
-	case POLYGON:
-		return false;
 	default:
-		return false;
+		vector<Vector2> rbp = this->getPoints();
+		int n = rbp.size();
+		if (n < 3)  return false;
+
+		Vector2 extreme = { numeric_limits<float>::max(), point_.y };
+
+		int count = 0, i = 0;
+		do
+		{
+			int next = (i + 1) % n;
+
+			if (segmentsIntersect(rbp[i], rbp[next], point_, extreme))
+			{
+				if (pointsOrientation(rbp[i], point_, rbp[next]) == 0)
+					return point_.onSegment(rbp[i], rbp[next]);
+
+				count++;
+			}
+			i = next;
+		} while (i != 0);
+
+		return count & 1;
 	}
 	return false;
 }

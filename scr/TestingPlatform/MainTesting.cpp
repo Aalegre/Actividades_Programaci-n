@@ -10,6 +10,7 @@
 #include "../../dep/inc/Aalegre/Interpolation.h"
 #include "../../dep/inc/Aalegre/RigidBody2D.h"
 #include "../../dep/inc/Aalegre/InputSystem.h"
+#include "../../dep/inc/Aalegre/GameTime.h"
 
 //Game general information
 #define SCREEN_WIDTH 1280
@@ -45,6 +46,7 @@ void Close(SDL_Window*& m_window, SDL_Renderer*& m_renderer) {
 
 int main(int argc, char* argv[])
 {
+	GameTime gameTime(60, 1, false);
 	srand(time(NULL));
 
 	try {
@@ -54,48 +56,87 @@ int main(int argc, char* argv[])
 		SDL_Event e;
 		bool quit = false;
 
-		RigidBody2D box1({ SCREEN_WIDTH_CENTER,SCREEN_HEIGHT_CENTER }, { 50,100 }, false);
-		RigidBody2D sphere1({ SCREEN_WIDTH_CENTER,SCREEN_HEIGHT_CENTER }, 250, false);
+		//std::vector<Vector2> polyPoints;
+		//for (size_t i = 0; i < rand() % 10 +3; i++)
+		//{
+		//	polyPoints.push_back({ float(rand() % 400 - 200), float(rand() % 400 - 200) });
+		//}
+		//RigidBody2D polygon1({ SCREEN_WIDTH_CENTER,SCREEN_HEIGHT_CENTER }, polyPoints, false);
+		//std::vector<Vector2> polyPoints2;
+		//for (size_t i = 0; i < rand() % 10 +3; i++)
+		//{
+		//	polyPoints2.push_back({ float(rand() % 400 - 200), float(rand() % 400 - 200) });
+		//}
+		//RigidBody2D polygon2({ SCREEN_WIDTH_CENTER,SCREEN_HEIGHT_CENTER }, polyPoints2, false);
 
-		std::vector<Vector2> polyPoints;
-		for (size_t i = 0; i < rand() % 10 +3; i++)
-		{
-			polyPoints.push_back({ float(rand() % 400 - 200), float(rand() % 400 - 200) });
-		}
-		RigidBody2D polygon1({ SCREEN_WIDTH_CENTER,SCREEN_HEIGHT_CENTER }, polyPoints, false);
+		RigidBody2D polygon1({ SCREEN_WIDTH_CENTER,SCREEN_HEIGHT_CENTER }, {100, 200}, false);
+		RigidBody2D polygon2({ SCREEN_WIDTH_CENTER,SCREEN_HEIGHT_CENTER }, {250, 250}, false);
+
+		SDL_Event event;
+		InputSystem inputs;
+		inputs["mousePos"] = new Input(AXIS, false, 10000);
 
 		while (!quit) {
-			if (!SDL_PollEvent(&e)) {
-				if (e.type == SDL_QUIT) quit = true;
-				if (e.key.keysym.sym == SDLK_ESCAPE) quit = true;
+			while (SDL_PollEvent(&event)) {
+				switch (event.type) {
+				case SDL_QUIT:
+					quit = true;
+					continue;
+					break;
+				//case SDL_KEYDOWN:
+				//	inputs["exit"].setInput(event.key.keysym.sym == SDLK_ESCAPE);
+				//	break;
+				case SDL_MOUSEMOTION:
+					inputs["mousePos"].setInput({ float(event.motion.x), float(event.motion.y) });
+					break;
+				//case SDL_MOUSEBUTTONDOWN:
+				//	inputs["mouseClick"].setButtonDown();
+				//	break;
+				//case SDL_MOUSEBUTTONUP:
+				//	inputs["mouseClick"].setButtonUp();
+				//	break;
+				default:;
+				}
 			}
 			SDL_SetRenderDrawColor(renderer, 0,0,0,255);
 			SDL_RenderClear(renderer);
-			SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-
-			box1.rotate(box1.getRotation() +1);
-			std::vector<Vector2> boxPoints = box1.getPoints();
-			Vector2 oldPoint = boxPoints[boxPoints.size()-1];
-			for (std::vector<Vector2>::iterator it = boxPoints.begin(); it != boxPoints.end(); ++it) {
-				SDL_RenderDrawLine(renderer, oldPoint.x, oldPoint.y, it->x, it->y);
-				oldPoint = *it;
+			if (polygon1.isColliding(polygon2)) {
+				SDL_SetRenderDrawColor(renderer, 255, 100, 200, 255);
+			}
+			else {
+				SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 			}
 
-			std::vector<Vector2> spherePoints = sphere1.getPoints();
-			oldPoint = spherePoints[spherePoints.size() - 1];
-			for (std::vector<Vector2>::iterator it = spherePoints.begin(); it != spherePoints.end(); ++it) {
-				SDL_RenderDrawLine(renderer, oldPoint.x, oldPoint.y, it->x, it->y);
-				oldPoint = *it;
-			}
-
-			polygon1.rotate(polygon1.getRotation() - 1);
+			polygon1.rotate(polygon1.getRotation() + 1000 * gameTime.getFixedDeltaTime());
 			std::vector<Vector2> polygonPoints = polygon1.getPoints();
-			oldPoint = polygonPoints[polygonPoints.size() - 1];
+			Vector2 oldPoint = polygonPoints[polygonPoints.size() - 1];
 			for (std::vector<Vector2>::iterator it = polygonPoints.begin(); it != polygonPoints.end(); ++it) {
 				SDL_RenderDrawLine(renderer, oldPoint.x, oldPoint.y, it->x, it->y);
 				oldPoint = *it;
 			}
-			SDL_RenderPresent(renderer);
+
+			polygon2.teleport(inputs["mousePos"].getAxis());
+			polygon2.rotate(polygon2.getRotation() + 1000 * gameTime.getFixedDeltaTime());
+
+
+			std::vector<Vector2> polygonPoints2 = polygon2.getPoints();
+			oldPoint = polygonPoints2[polygonPoints2.size() - 1];
+			for (std::vector<Vector2>::iterator it = polygonPoints2.begin(); it != polygonPoints2.end(); ++it) {
+				SDL_RenderDrawLine(renderer, oldPoint.x, oldPoint.y, it->x, it->y);
+				oldPoint = *it;
+			}
+
+			gameTime.nextTick();
+
+			if (gameTime.canRender()) {
+				SDL_RenderPresent(renderer);
+				//cout << "fixedDelta  " << gameTime.getFixedDeltaTime() << endl;
+				//cout << "Delta       " << gameTime.getDeltaTime() << endl;
+				//cout << "tickCount   " << gameTime.getLastFrameTickCount() << endl;
+				//cout << "renderTime  " << gameTime.getLastRenderTime() << endl;
+				cout << "FPS         " << gameTime.getCurrentFPS() << endl;
+				gameTime.nextFrame();
+			}
 		}
 		Close(window, renderer);
 	}

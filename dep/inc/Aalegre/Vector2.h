@@ -2,13 +2,14 @@
 
 #include <iostream>
 #include <math.h>
+#include <algorithm>
 #define PI 3.14159265
 
 using namespace std;
 
 class Vector2
 {
-	public:
+public:
 
 	float x;
 	float y;
@@ -30,7 +31,8 @@ class Vector2
 	const float Distance(Vector2 to_);
 	const float Distance(Vector2 lineStart_, Vector2 lineEnd_);
 	const float GetEulerAngle();
-	const float xProduct(const Vector2 & scalar_);
+	const float xProduct(const Vector2& scalar_);
+	const bool onSegment(Vector2 segment1_, Vector2 segment2_);
 
 	//Modify
 	void Add(const Vector2 add_);
@@ -48,12 +50,15 @@ class Vector2
 	Vector2 operator*(const Vector2 vector_);
 	friend bool operator==(const Vector2 vector0_, const Vector2 vector1_);
 	friend bool operator!=(const Vector2 vector0_, const Vector2 vector1_);
+
+	//Utils
+	friend int pointsOrientation(Vector2 p, Vector2 q, Vector2 r);
+	friend bool segmentsIntersect(Vector2 segmentA_1_, Vector2 segmentA_2_, Vector2 segmentB_1_, Vector2 segmentB_2_);
 };
 class Vector2Int
 {
-	public:
+public:
 
 	int x;
 	int y;
 };
-
