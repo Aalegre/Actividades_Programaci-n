@@ -17,6 +17,7 @@ public:
 	BinaryTree();
 	~BinaryTree();
 
+	void Delete(BinaryNode* node_);
 	const void PreOrder();
 	const void PreOrder(const BinaryNode* node_);
 	const void PreOrderI();
@@ -71,6 +72,19 @@ BinaryTree<char>::BinaryTree()
 template<typename T>
 BinaryTree<T>::~BinaryTree()
 {
+	Delete(root);
+	root = nullptr;
+}
+
+template<typename T>
+inline void BinaryTree<T>::Delete(BinaryNode* node_)
+{
+	if (node_ == nullptr)
+		return;
+	Delete(node_->left);
+	Delete(node_->right);
+	delete node_;
+	node_ = nullptr;
 }
 
 template<typename T>
@@ -88,8 +102,8 @@ const void BinaryTree<T>::PreOrder(const BinaryNode* node_)
 		return void();
 
 	std::cout << node_->data;
-	PostOrder(node_->left);
-	PostOrder(node_->right);
+	PreOrder(node_->left);
+	PreOrder(node_->right);
 
 
 	return void();
@@ -109,12 +123,12 @@ const void BinaryTree<T>::PreOrderI()
 	nodes.push(root);
 	while (!nodes.empty()) {
 		temp = nodes.top();
+		std::cout << temp->data;
 		nodes.pop();
-		if (temp->left != nullptr)
-			nodes.push(temp->left);
 		if (temp->right != nullptr)
 			nodes.push(temp->right);
-		std::cout << temp->data;
+		if (temp->left != nullptr)
+			nodes.push(temp->left);
 	}
 
 	std::cout << std::endl;
@@ -135,9 +149,9 @@ const void BinaryTree<T>::InOrder(const BinaryNode* node_)
 	if (node_ == nullptr)
 		return void();
 
-	PostOrder(node_->left);
+	InOrder(node_->left);
 	std::cout << node_->data;
-	PostOrder(node_->right);
+	InOrder(node_->right);
 
 
 	return void();
